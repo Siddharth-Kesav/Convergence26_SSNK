@@ -27,8 +27,9 @@ def simulate_spiral(angle_deg: float, num_panels: int = NUM_PANELS):
     x = radius * np.cos(theta)
     y = radius * np.sin(theta)
 
-    # Index doubles as "altitude": panel 0 = lowest, last panel = highest
-    altitude = indices
+    # Index doubles as "altitude", flipped so the outer edge is lowest
+    # and the center is highest (e.g. a tower spiraling upward toward the core)
+    altitude = (num_panels - 1) - indices
 
     return x, y, altitude
 
