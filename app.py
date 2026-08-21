@@ -1,6 +1,6 @@
 import streamlit as st
 import numpy as np
-import matplotlib.pyplot as plt
+import plotly.graph_objects as go
 
 st.set_page_config(page_title="Phyllotaxis Spiral Simulation", layout="centered")
 
@@ -34,23 +34,39 @@ def simulate_spiral(angle_deg: float, num_panels: int = NUM_PANELS):
 
 x, y, altitude = simulate_spiral(angle_deg)
 
-fig, ax = plt.subplots(figsize=(7, 7))
-
 # viridis_r reversed so LOW altitude -> light color, HIGH altitude -> dark color
-scatter = ax.scatter(
-    x, y, c=altitude, cmap="viridis_r", s=80, alpha=0.8, edgecolor="k"
+fig = go.Figure(
+    data=go.Scatter(
+        x=x,
+        y=y,
+        mode="markers",
+        marker=dict(
+            size=14,
+            color=altitude,
+            colorscale="Viridis",
+            reversescale=True,  # low altitude -> light, high altitude -> dark
+            line=dict(width=1, color="black"),
+            opacity=0.85,
+            colorbar=dict(
+                title=dict(text="Altitude", side="top"),
+                tickvals=[altitude.min(), altitude.max()],
+                ticktext=["Lower (lighter)", "Higher (darker)"],
+            ),
+        ),
+    )
 )
 
-ax.set_title(f"Phyllotaxis Spiral Simulation\nAngle: {angle_deg}°", fontsize=14, fontweight="bold")
-ax.set_aspect("equal")
-ax.axis("off")
+fig.update_layout(
+    title=f"Phyllotaxis Spiral Simulation — Angle: {angle_deg}°",
+    xaxis=dict(visible=False, scaleanchor="y", scaleratio=1),
+    yaxis=dict(visible=False),
+    width=650,
+    height=650,
+    margin=dict(l=20, r=20, t=60, b=20),
+    transition=dict(duration=300, easing="cubic-in-out"),  # smooth redraw
+)
 
-cbar = fig.colorbar(scatter, ax=ax, shrink=0.7, pad=0.03)
-cbar.set_label("Altitude", fontsize=11, fontweight="bold")
-cbar.set_ticks([altitude.min(), altitude.max()])
-cbar.set_ticklabels(["Lower\n(lighter)", "Higher\n(darker)"])
-
-st.pyplot(fig)
+st.plotly_chart(fig, use_container_width=True)
 
 st.markdown(
     "**Legend:** the lighter a panel's color, the *lower* its altitude; "
